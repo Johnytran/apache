@@ -20,6 +20,7 @@
 		EB8ADFA725D7C4DF00E59BB9 /* Node+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8ADFA625D7C4DF00E59BB9 /* Node+Extensions.swift */; };
 		EB8ADFAF25D7DEC900E59BB9 /* SceneObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8ADFAE25D7DEC900E59BB9 /* SceneObject.swift */; };
 		EB8ADFBC25D8D15B00E59BB9 /* Apache.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8ADFBB25D8D15B00E59BB9 /* Apache.swift */; };
+		EB8AE00425DB496800E59BB9 /* FistClassifier364.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = EB8AE00325DB496800E59BB9 /* FistClassifier364.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +60,7 @@
 		EB8ADFA625D7C4DF00E59BB9 /* Node+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Node+Extensions.swift"; sourceTree = "<group>"; };
 		EB8ADFAE25D7DEC900E59BB9 /* SceneObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneObject.swift; sourceTree = "<group>"; };
 		EB8ADFBB25D8D15B00E59BB9 /* Apache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Apache.swift; sourceTree = "<group>"; };
+		EB8AE00325DB496800E59BB9 /* FistClassifier364.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = FistClassifier364.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 		EB579D6725D3E19100EE4FAD /* apache */ = {
 			isa = PBXGroup;
 			children = (
+				EB8AE00225DB493400E59BB9 /* CoreML */,
 				EB8ADFA525D7C4B000E59BB9 /* Utilities */,
 				EB579D9B25D4BBEC00EE4FAD /* collada */,
 				EB579D6825D3E19100EE4FAD /* AppDelegate.swift */,
@@ -157,6 +160,14 @@
 				EB8ADFBB25D8D15B00E59BB9 /* Apache.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		EB8AE00225DB493400E59BB9 /* CoreML */ = {
+			isa = PBXGroup;
+			children = (
+				EB8AE00325DB496800E59BB9 /* FistClassifier364.mlmodel */,
+			);
+			path = CoreML;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -292,6 +303,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				EB579D6B25D3E19100EE4FAD /* ViewController.swift in Sources */,
+				EB8AE00425DB496800E59BB9 /* FistClassifier364.mlmodel in Sources */,
 				EB8ADFBC25D8D15B00E59BB9 /* Apache.swift in Sources */,
 				EB8ADFAF25D7DEC900E59BB9 /* SceneObject.swift in Sources */,
 				EB8ADFA725D7C4DF00E59BB9 /* Node+Extensions.swift in Sources */,
