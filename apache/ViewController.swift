@@ -74,6 +74,35 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
         classificationRequest.imageCropAndScaleOption = VNImageCropAndScaleOption.centerCrop // Crop from centre of images and scale to appropriate size.
         visionRequests = [classificationRequest]
     }
+    
+    private func classificationCompleteHandler(request: VNRequest, error: Error?) {
+            if error != nil {
+                print("Error: " + (error?.localizedDescription)!)
+                return
+            }
+            guard let observations = request.results else {
+                return
+            }
+            
+            let classifications = observations[0...2]
+                .compactMap({ $0 as? VNClassificationObservation })
+                .map({ "\($0.identifier) \(String(format:" : %.2f", $0.confidence))" })
+                .joined(separator: "\n")
+            
+            print("Classifications: \(classifications)")
+            
+            DispatchQueue.main.async {
+                let topPrediction = classifications.components(separatedBy: "\n")[0]
+                let topPredictionName = topPrediction.components(separatedBy: ":")[0].trimmingCharacters(in: .whitespaces)
+                guard let topPredictionScore: Float = Float(topPrediction.components(separatedBy: ":")[1].trimmingCharacters(in: .whitespaces)) else { return }
+                
+                if (topPredictionScore > 0.95) {
+                    print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+                    
+                }
+            }
+        }
+    
     private func updateCoreML() {
         let pixbuff : CVPixelBuffer? = (arView.session.currentFrame?.capturedImage)
         if pixbuff == nil { return }
