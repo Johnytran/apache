@@ -35,21 +35,12 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             arView.scene = scene;
         }
 
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.didTapScreen))
-        tapRecognizer.numberOfTapsRequired = 1
-        tapRecognizer.numberOfTouchesRequired = 1
-        self.view.addGestureRecognizer(tapRecognizer)
+        
+        let position = SCNVector3(0, 0, -8)
+        sceneController.addApache(parent: arView.scene.rootNode, position: position)
+        
     }
     
-    @objc func didTapScreen(recognizer: UITapGestureRecognizer) {
-        if let camera = arView.session.currentFrame?.camera {
-            var translation = matrix_identity_float4x4
-            translation.columns.3.z = -7.0
-            let transform = camera.transform * translation
-            let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
-            sceneController.addApache(parent: arView.scene.rootNode, position: position)
-        }
-    }
     override func viewWillAppear(_ animated: Bool) {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
@@ -98,7 +89,17 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 
                 if (topPredictionScore > 0.95) {
                     print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+                    guard let childNode = self.arView.scene.rootNode.childNode(withName: "Apache", recursively: true), let apache = childNode as? Apache else { return }
+
+                    if topPredictionName == "fist" {
+                        print("fist");
+                        apache.animate()
+                    }
                     
+                    if topPredictionName == "open_hand" || topPredictionName == "no_hand" {
+                        print("else");
+                        apache.stopAnimating()
+                    }
                 }
             }
         }
