@@ -18,6 +18,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
     private let serialQueue = DispatchQueue(label: "com.aboveground.dispatchqueueml")
     private var visionRequests = [VNRequest]()
     private var timer = Timer()
+    var centeredNode: SCNNode?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,12 +36,52 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             arView.scene = scene;
         }
 
-        
-        let position = SCNVector3(0, 0, -8)
-        sceneController.addApache(parent: arView.scene.rootNode, position: position)
-        
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.didTapScreen))
+        tapRecognizer.numberOfTapsRequired = 1
+        tapRecognizer.numberOfTouchesRequired = 1
+        self.view.addGestureRecognizer(tapRecognizer)
     }
     
+    @objc func didTapScreen(recognizer: UITapGestureRecognizer) {
+        if let camera = arView.session.currentFrame?.camera {
+            var translation = matrix_identity_float4x4
+            translation.columns.3.z = -7.0
+            let transform = camera.transform * translation
+            let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            sceneController.addApache(parent: arView.scene.rootNode, position: position)
+        }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+        // Check all the nodes if they are inside our frustrum
+        for node in arView.scene.rootNode.childNodes {
+            guard let pointOfView = renderer.pointOfView else { return }
+            let isVisible = renderer.isNode(node, insideFrustumOf: pointOfView)
+            
+            if isVisible, let apache = node as? Apache {
+                // get the extents of the screen
+                let screenWidth = UIScreen.main.bounds.width
+                let screenHeight = UIScreen.main.bounds.height
+                
+                // Define a length for determining if an object is within a certain distance from the center of the screen
+                let buffer: CGFloat = 120.0
+                
+                // Define the rectangle that serves as the "center" area
+                let topLeftPoint = CGPoint(x: screenWidth/2 - buffer, y: screenHeight/2 - buffer)
+                let screenRect = CGRect(origin: topLeftPoint, size: CGSize(width: buffer * 2, height: buffer * 2))
+                
+                // Get the world position of the object in screen space, strip out the Z, and create a CGPoint
+                let screenPos = renderer.projectPoint(apache.worldPosition)
+                let xyPos = CGPoint(x: CGFloat(screenPos.x), y: CGFloat(screenPos.y))
+                
+                // If this object is centered, then set it to the centeredNode var
+                let isCentered = screenRect.contains(xyPos)
+                if isCentered {
+                    centeredNode = apache
+                }
+            }
+        }
+    }
     override func viewWillAppear(_ animated: Bool) {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
