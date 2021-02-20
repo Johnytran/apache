@@ -36,7 +36,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             arView.scene = scene;
         }
 
-        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.didTapScreen))
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(ViewController.didTap))
         tapRecognizer.numberOfTapsRequired = 1
         tapRecognizer.numberOfTouchesRequired = 1
         self.view.addGestureRecognizer(tapRecognizer)
@@ -48,6 +48,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
             translation.columns.3.z = -7.0
             let transform = camera.transform * translation
             let position = SCNVector3(transform.columns.3.x, transform.columns.3.y, transform.columns.3.z)
+            //print(position)
+            sceneController.addApache(parent: arView.scene.rootNode, position: position)
+        }
+    }
+    @objc
+    func didTap(_ gesture: UITapGestureRecognizer) {
+        
+        let tapLocation = gesture.location(in: arView)
+        let results = arView.hitTest(tapLocation, types: .featurePoint)
+        
+        if let result = results.first {
+            let translation = result.worldTransform.translation
+            let position = SCNVector3Make(translation.x, translation.y, translation.z);
+            
             sceneController.addApache(parent: arView.scene.rootNode, position: position)
         }
     }
@@ -121,7 +135,7 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 .map({ "\($0.identifier) \(String(format:" : %.2f", $0.confidence))" })
                 .joined(separator: "\n")
             
-            print("Classifications: \(classifications)")
+            //print("Classifications: \(classifications)")
             
             DispatchQueue.main.async {
                 let topPrediction = classifications.components(separatedBy: "\n")[0]
@@ -129,16 +143,20 @@ class ViewController: UIViewController, ARSCNViewDelegate, ARSessionDelegate {
                 guard let topPredictionScore: Float = Float(topPrediction.components(separatedBy: ":")[1].trimmingCharacters(in: .whitespaces)) else { return }
                 
                 if (topPredictionScore > 0.95) {
-                    print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
-                    guard let childNode = self.arView.scene.rootNode.childNode(withName: "Apache", recursively: true), let apache = childNode as? Apache else { return }
-
+                    //print("Top prediction: \(topPredictionName) - score: \(String(describing: topPredictionScore))")
+                    
+                    guard let nodeToOperateOn = (self.centeredNode ?? self.arView.scene.rootNode.childNode(withName: "Apache", recursively: true)),
+                        let apache = nodeToOperateOn as? Apache else {
+                        return
+                    }
+                    //print(apache.position)
                     if topPredictionName == "fist" {
-                        print("fist");
+                        //print("fist");
                         apache.animate()
                     }
                     
                     if topPredictionName == "open_hand" || topPredictionName == "no_hand" {
-                        print("else");
+                        //print("else");
                         apache.stopAnimating()
                     }
                 }
@@ -173,5 +191,11 @@ extension UIDeviceOrientation {
         case UIDeviceOrientation.landscapeRight: return CGImagePropertyOrientation.down
         case UIDeviceOrientation.unknown: return CGImagePropertyOrientation.right
         }
+    }
+}
+extension float4x4 {
+    var translation: SIMD3<Float> {
+        let translation = self.columns.3
+        return SIMD3<Float>(translation.x, translation.y, translation.z)
     }
 }
